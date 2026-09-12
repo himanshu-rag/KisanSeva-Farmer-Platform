@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
         t.id, t.token_no, t.status, t.quantity, 
         c.name as centre, 
         s.date as date_str, s.slot_start || '–' || s.slot_end as time_str,
-        cr.name as crop_name, cr.msp,
+        cr.name_en as crop_name, cr.msp,
         t.procured_at, t.created_at
       FROM tokens t
       JOIN procurement_centres c ON t.centre_id = c.id
