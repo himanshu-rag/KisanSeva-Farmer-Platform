@@ -1,12 +1,15 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, QrCode } from 'lucide-react';
+import { Search, QrCode, X } from 'lucide-react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 export default function AdminFarmersPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [lang, setLang] = useState('en');
+  const [showScanner, setShowScanner] = useState(false);
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
     setLang(localStorage.getItem('kisanseva_admin_lang') || 'en');
@@ -20,6 +23,46 @@ export default function AdminFarmersPage() {
       router.push(`/admin/farmers/${search.trim()}`);
     }
   };
+
+  useEffect(() => {
+    if (showScanner) {
+      scannerRef.current = new Html5QrcodeScanner(
+        "qr-reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false
+      );
+
+      scannerRef.current.render(
+        (decodedText) => {
+          // If it's a full URL (like http://localhost:3000/admin/farmers/HR-123)
+          if (decodedText.includes('/admin/farmers/')) {
+            const parts = decodedText.split('/admin/farmers/');
+            if (parts.length > 1) {
+              router.push(`/admin/farmers/${parts[1]}`);
+            } else {
+              router.push(decodedText);
+            }
+          } else {
+            // Assume it's just the ID
+            router.push(`/admin/farmers/${decodedText}`);
+          }
+          if (scannerRef.current) {
+            scannerRef.current.clear();
+          }
+          setShowScanner(false);
+        },
+        (error) => {
+          // Just ignore read errors, it throws them every frame it doesn't see a QR
+        }
+      );
+    }
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(console.error);
+      }
+    };
+  }, [showScanner, router]);
 
   return (
     <div style={{ paddingBottom: '40px' }}>
@@ -63,11 +106,32 @@ export default function AdminFarmersPage() {
         </form>
 
         <div style={{ marginTop: '24px', textAlign: 'center' }}>
-          <button style={{ background: 'none', border: 'none', color: '#2563EB', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <button 
+            type="button"
+            onClick={() => setShowScanner(true)}
+            style={{ background: 'none', border: 'none', color: '#2563EB', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '8px 16px', borderRadius: '8px', transition: 'background 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#EFF6FF'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'none'}
+          >
             <QrCode size={18} /> {isEn ? 'Open Camera Scanner' : 'कैमरा स्कैनर खोलें'}
           </button>
         </div>
       </div>
+
+      {showScanner && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '20px', width: '100%', maxWidth: '500px', position: 'relative' }}>
+            <button 
+              onClick={() => setShowScanner(false)}
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', zIndex: 10 }}
+            >
+              <X size={24} color="#4B5563" />
+            </button>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center' }}>Scan QR Code</h3>
+            <div id="qr-reader" style={{ width: '100%' }}></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
