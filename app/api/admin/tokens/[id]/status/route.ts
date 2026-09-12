@@ -12,7 +12,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (payload.role !== 'ADMIN' && payload.role !== 'OPERATOR') return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const { status } = await req.json(); // expected: ARRIVED, VERIFIED, WEIGHED, PROCURED
+    const { status, quantity } = await req.json(); // expected: ARRIVED, VERIFIED, WEIGHED, PROCURED
     
     if (!['ARRIVED', 'VERIFIED', 'WEIGHED', 'PROCURED', 'CANCELLED'].includes(status)) {
       return NextResponse.json({ success: false, error: 'Invalid status' }, { status: 400 });
@@ -20,9 +20,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const db = getDb();
     
-    db.prepare('UPDATE tokens SET status = ? WHERE id = ?').run(status, id);
-
-    // If completed, update slots booked ? (Optional, slots track total booked regardless of completion)
+    if (quantity !== undefined) {
+      db.prepare('UPDATE tokens SET status = ?, quantity = ?, procured_at = datetime("now") WHERE id = ?').run(status, quantity, id);
+    } else {
+      db.prepare('UPDATE tokens SET status = ? WHERE id = ?').run(status, id);
+    }
     
     return NextResponse.json({ success: true });
   } catch (error: any) {

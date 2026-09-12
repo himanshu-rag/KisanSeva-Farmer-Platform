@@ -37,6 +37,34 @@ export default function AdminFarmerProfile() {
       .finally(() => setLoading(false));
   }, [params.id, router]);
 
+
+  const handleProcure = async (tokenId, defaultQty) => {
+    const token = localStorage.getItem('kisanseva_admin_token');
+    const qtyStr = window.prompt("Enter the exact procured quantity in Quintals (Qt):", defaultQty);
+    if (!qtyStr) return;
+    const qty = parseFloat(qtyStr);
+    if (isNaN(qty) || qty <= 0) {
+      alert("Invalid quantity!");
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/admin/tokens/${tokenId}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: 'PROCURED', quantity: qty })
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload(); // Quick refresh to show in history
+      } else {
+        alert(data.error);
+      }
+    } catch (e) {
+      alert('Error updating token');
+    }
+  };
+
   const t = adminTranslations[lang] || adminTranslations['en'];
   const isEn = lang === 'en';
 
@@ -135,9 +163,18 @@ export default function AdminFarmerProfile() {
                           <IndianRupee size={12} /> {estimatedPayment} (Estimated)
                         </div>
                       </div>
-                      <div style={{ background: '#FEF3C7', color: '#D97706', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}>
-                        {tk.status}
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                        <div style={{ background: '#FEF3C7', color: '#D97706', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}>
+                          {tk.status}
+                        </div>
+                        <button 
+                          onClick={() => handleProcure(tk.id, farmer.typical_qty)}
+                          style={{ background: '#2A7A3B', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                          Procure & Pay
+                        </button>
                       </div>
+
                     </div>
                   );
                 })}
