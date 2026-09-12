@@ -110,3 +110,16 @@ npm run dev
 
 ## 🛡 License
 Built with ❤️ for Indian Farmers. Feel free to explore, fork, and learn from this codebase!
+
+---
+
+## 👥 Our Team
+
+This project was proudly built by our team for the Smart India Hackathon (SIH).
+
+- **Himanshu Rags**
+- **Tushar Sharma** (sharmat3420@gmail.com)
+- **Snehal Srivastava** (Snehalsrivastava06@gmail.com)
+- **Paras Negi** (Parasnegi378@gmail.com)
+- **Chhavi Jain** (chhavijain408@gmail.com)
+- **Aarjav Jain** (jainsinghaiaarjav@gmail.com)
