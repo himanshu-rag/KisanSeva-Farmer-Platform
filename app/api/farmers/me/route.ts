@@ -83,7 +83,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Update the profile photo
-    db.prepare('UPDATE farmers SET profile_photo = ?, updated_at = datetime("now") WHERE id = ?').run(profile_photo, farmer.id);
+    db.prepare('UPDATE farmers SET profile_photo = ?, updated_at = datetime(\'now\') WHERE id = ?').run(profile_photo, farmer.id);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
