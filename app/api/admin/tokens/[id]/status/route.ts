@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const db = getDb();
     
     if (quantity !== undefined) {
-      db.prepare('UPDATE tokens SET status = ?, quantity = ?, procured_at = datetime("now") WHERE id = ?').run(status, quantity, id);
+      db.prepare("UPDATE tokens SET status = ?, quantity = ?, procured_at = datetime('now') WHERE id = ?").run(status, quantity, id);
     } else {
       db.prepare('UPDATE tokens SET status = ? WHERE id = ?').run(status, id);
     }
