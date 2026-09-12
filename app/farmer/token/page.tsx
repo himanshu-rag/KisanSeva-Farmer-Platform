@@ -22,6 +22,7 @@ export default function TokenPage() {
   const [cancelling, setCancelling] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const [activeToken, setActiveToken] = useState<ActiveToken | null>(null);
+  const [farmer, setFarmer] = useState<any>(null);
   const [tokenStatus, setTokenStatus] = useState('BOOKED');
   const [loading, setLoading] = useState(true);
   const [noToken, setNoToken] = useState(false);
@@ -47,11 +48,16 @@ export default function TokenPage() {
     fetch('/api/farmers/me', { headers: { Authorization: 'Bearer ' + jwtToken } })
       .then(r => r.json())
       .then(d => {
-        if (d.success && d.data.activeToken) {
-          const t = d.data.activeToken;
-          setActiveToken({ id: t.id, tokenNo: t.tokenNo, centre: t.centre, slot: t.slot });
-          setTokenStatus(t.status || 'BOOKED');
-          setAhead(t.ahead || 12);
+        if (d.success) {
+          if (d.data.farmer) setFarmer(d.data.farmer);
+          if (d.data.activeToken) {
+            const t = d.data.activeToken;
+            setActiveToken({ id: t.id, tokenNo: t.tokenNo, centre: t.centre, slot: t.slot });
+            setTokenStatus(t.status || 'BOOKED');
+            setAhead(t.ahead || 12);
+          } else {
+            setNoToken(true);
+          }
         } else {
           setNoToken(true);
         }
