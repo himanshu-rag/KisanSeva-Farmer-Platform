@@ -1,7 +1,7 @@
 # 🌾 KisanSeva (किसान सेवा)
 
 <div align="center">
-  <img src="public/icons/icon-512.png" alt="KisanSeva Logo" width="120" />
+  <img src="public/logo.jpg" alt="KisanSeva Logo" width="120" />
   <br/>
   <h3>Smart Procurement & Farmer Assistance Platform</h3>
   <p>Empowering Indian Farmers with seamless crop sales, real-time queues, and AI-driven guidance.</p>
