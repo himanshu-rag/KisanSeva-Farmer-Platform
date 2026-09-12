@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, User, MapPin, Phone, ShieldCheck, Ticket } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Phone, ShieldCheck, Ticket, IndianRupee } from 'lucide-react';
 import { adminTranslations } from '@/lib/i18n/admin';
 
 export default function AdminFarmerProfile() {
@@ -9,6 +9,7 @@ export default function AdminFarmerProfile() {
   const router = useRouter();
   const [farmer, setFarmer] = useState<any>(null);
   const [tokens, setTokens] = useState<any[]>([]);
+  const [historyTokens, setHistoryTokens] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lang, setLang] = useState('en');
@@ -27,6 +28,7 @@ export default function AdminFarmerProfile() {
         if (d.success) {
           setFarmer(d.data.farmer);
           setTokens(d.data.activeTokens);
+          setHistoryTokens(d.data.historyTokens || []);
         } else {
           setError(d.error || 'Failed to load farmer');
         }
@@ -57,8 +59,13 @@ export default function AdminFarmerProfile() {
         {/* Left Col - Identity */}
         <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <User size={32} color="#4B5563" />
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+              {farmer.profile_photo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={farmer.profile_photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <User size={32} color="#4B5563" />
+              )}
             </div>
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0, color: '#111827' }}>{farmer.name}</h2>
@@ -111,26 +118,63 @@ export default function AdminFarmerProfile() {
 
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Ticket size={20} /> Active Bookings
+              <Ticket size={20} color="#2A7A3B" /> Active Bookings
             </h3>
             {tokens.length === 0 ? (
               <div style={{ color: '#6B7280', fontSize: '14px', padding: '16px 0' }}>No active bookings found.</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {tokens.map((tk: any) => (
-                  <div key={tk.id} style={{ border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1A2E1A' }}>{tk.tokenNo}</div>
-                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '2px' }}>{tk.centre} • {tk.slot}</div>
+                {tokens.map((tk: any) => {
+                  const estimatedPayment = (farmer.typical_qty * tk.msp).toLocaleString('en-IN');
+                  return (
+                    <div key={tk.id} style={{ border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
+                      <div>
+                        <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1A2E1A' }}>{tk.tokenNo}</div>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '2px' }}>{tk.centre} • {tk.slot}</div>
+                        <div style={{ fontSize: '13px', color: '#2563EB', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                          <IndianRupee size={12} /> {estimatedPayment} (Estimated)
+                        </div>
+                      </div>
+                      <div style={{ background: '#FEF3C7', color: '#D97706', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}>
+                        {tk.status}
+                      </div>
                     </div>
-                    <div style={{ background: '#E8F5EC', color: '#16A34A', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}>
-                      {tk.status}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
+
+          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IndianRupee size={20} color="#16A34A" /> Payment History (Procured)
+            </h3>
+            {historyTokens.length === 0 ? (
+              <div style={{ color: '#6B7280', fontSize: '14px', padding: '16px 0' }}>No completed payments found.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {historyTokens.map((tk: any) => {
+                  if (tk.status !== 'PROCURED') return null;
+                  const finalPayment = (tk.quantity * tk.msp).toLocaleString('en-IN');
+                  return (
+                    <div key={tk.id} style={{ border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1A2E1A' }}>{tk.tokenNo}</div>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '2px' }}>{tk.quantity} Qt {tk.crop_name}</div>
+                        <div style={{ fontSize: '14px', color: '#16A34A', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}>
+                          <IndianRupee size={14} /> {finalPayment} (Final)
+                        </div>
+                      </div>
+                      <div style={{ background: '#DCFCE7', color: '#16A34A', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}>
+                        INITIATED
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
     </div>

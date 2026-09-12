@@ -33,11 +33,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // Get active tokens
     const activeTokens = db.prepare(`
-      SELECT t.id, t.token_no as tokenNo, c.name as centre, s.slot_start || '–' || s.slot_end as slot, t.status
+      SELECT t.id, t.token_no as tokenNo, c.name as centre, s.slot_start || '–' || s.slot_end as slot, t.status, cr.name_en as crop_name, cr.msp_per_qt as msp
       FROM tokens t
       JOIN procurement_centres c ON t.centre_id = c.id
       JOIN slots s ON t.slot_id = s.id
+      JOIN crops cr ON t.crop_id = cr.id
       WHERE t.farmer_id = ? AND t.status IN ('BOOKED', 'ARRIVED', 'VERIFIED', 'WEIGHED')
+      ORDER BY t.created_at DESC
+    `).all(farmer.id) as any;
+
+    // Get payment history (procured tokens)
+    const historyTokens = db.prepare(`
+      SELECT t.id, t.token_no as tokenNo, c.name as centre, s.slot_start || '–' || s.slot_end as slot, t.status, t.quantity, cr.name_en as crop_name, cr.msp_per_qt as msp
+      FROM tokens t
+      JOIN procurement_centres c ON t.centre_id = c.id
+      JOIN slots s ON t.slot_id = s.id
+      JOIN crops cr ON t.crop_id = cr.id
+      WHERE t.farmer_id = ? AND t.status IN ('PROCURED', 'CANCELLED')
       ORDER BY t.created_at DESC
     `).all(farmer.id) as any;
 
@@ -45,7 +57,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       success: true, 
       data: {
         farmer,
-        activeTokens
+        activeTokens,
+        historyTokens
       }
     });
   } catch (error: any) {
