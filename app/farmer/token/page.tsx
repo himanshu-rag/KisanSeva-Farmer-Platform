@@ -133,17 +133,26 @@ export default function TokenPage() {
   const todayStr = new Date().toLocaleDateString(isEn ? 'en-IN' : 'hi-IN', { day: 'numeric', month: 'short' });
   const serving = Math.max(100, parseInt(tokenNo.replace(/\D/g,'') || '100') - ahead - 1);
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const qrValue = farmer ? `${origin}/admin/farmers/${farmer.farmer_id || farmer.id}` : '';
+
   return (
-    <div style={{ background: '#FDFCF7', paddingBottom: '90px', minHeight: '100dvh' }}>
+    <div style={{ background: '#FDFCF7', minHeight: '100dvh', paddingBottom: '90px' }}>
       {showOperator && (
-        <div style={{ position: 'fixed', inset: 0, background: '#2A7A3B', zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <button onClick={() => setShowOperator(false)} style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '48px', height: '48px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, background: '#1A2E1A', zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <button onClick={() => setShowOperator(false)} style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <X size={24} color="white" />
           </button>
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px' }}>{isEn ? 'Show this to the operator' : 'ऑपरेटर को दिखाएँ'}</div>
-          <div style={{ color: 'white', fontSize: '120px', fontWeight: '900', lineHeight: 1, letterSpacing: '-4px' }}>{tokenNo}</div>
-          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '22px', marginTop: '20px' }}>{centre}</div>
-          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '18px', marginTop: '8px' }}>{slot}</div>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '24px' }}>{isEn ? 'Show this QR to the operator' : 'ऑपरेटर को यह QR दिखाएँ'}</div>
+          
+          <div style={{ background: 'white', padding: '16px', borderRadius: '16px', marginBottom: '32px' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrValue)}`} alt="Token QR" width={200} height={200} style={{ display: 'block' }} />
+          </div>
+
+          <div style={{ color: 'white', fontSize: '60px', fontWeight: '900', lineHeight: 1, letterSpacing: '-2px' }}>{tokenNo}</div>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '20px', marginTop: '16px' }}>{centre}</div>
+          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px', marginTop: '8px' }}>{slot}</div>
         </div>
       )}
 
