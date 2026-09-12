@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Bell, ChevronRight, Building2, ClipboardList, Wallet, Mic } from 'lucide-react';
+import { Bell, ChevronRight, Building2, History, Wallet, Mic } from 'lucide-react';
 import WeatherWidget from '@/components/farmer/WeatherWidget';
 import { useFarmerLang } from '@/lib/hooks/useFarmerLang';
 
@@ -22,7 +22,7 @@ export default function HomePage() {
 
   const quickActions = [
     { icon: Building2, label: isEn ? 'Find Centre' : 'केंद्र खोजें', href: '/farmer/book', color: '#E8F5EC', iconColor: '#2A7A3B' },
-    { icon: ClipboardList, label: isEn ? 'My Sales' : 'मेरी खरीद', href: '/farmer/status', color: '#EFF6FF', iconColor: '#2563EB' },
+    { icon: History, label: isEn ? 'History' : 'इतिहास', href: '/farmer/history', color: '#EFF6FF', iconColor: '#2563EB' },
     { icon: Wallet, label: isEn ? 'Payments' : 'भुगतान', href: '/farmer/payment', color: '#FEF3C7', iconColor: '#D97706' },
     { icon: Mic, label: isEn ? 'Assistant' : 'सहायक', href: '/farmer/help', color: '#FDF2F8', iconColor: '#9333EA' },
   ];
