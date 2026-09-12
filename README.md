@@ -99,9 +99,9 @@ npm run dev
       <td align="center"><b>Admin Dashboard</b></td>
     </tr>
     <tr>
-      <td><img src="https://via.placeholder.com/250x500?text=Farmer+Home" alt="Farmer Home" width="250"/></td>
-      <td><img src="https://via.placeholder.com/250x500?text=Live+Token" alt="Live Token" width="250"/></td>
-      <td><img src="https://via.placeholder.com/400x250?text=Admin+Dashboard" alt="Admin Dashboard" width="400"/></td>
+      <td><img src="public/screenshots/farmer-home.png" alt="Farmer Home" width="250"/></td>
+      <td><img src="public/screenshots/live-token.png" alt="Live Token" width="250"/></td>
+      <td><img src="public/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="400"/></td>
     </tr>
   </table>
 </div>
